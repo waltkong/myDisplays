@@ -1,0 +1,138 @@
+{{template "admin/common/header.html" .}}
+
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 平台管理 <span class="c-gray en">&gt;</span> 投放平台
+    <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" >
+        <i class="Hui-iconfont">&#xe68f;</i>
+    </a>
+</nav>
+
+<div class="page-container">
+    <div class="text-c">
+        <input type="text" class="input-text" style="width:250px" placeholder="输入投放平台名" id="addName" name="addName">
+        <button type="button" class="btn btn-success radius" id="search_btn" name="" onclick="doAdd()"> <i class="Hui-iconfont">&#xe600;</i> 新增平台</button>
+    </div>
+
+    <div class="cl pd-5 bg-1 bk-gray mt-20">
+        <span class="r">共有数据：<strong id="total_nums">0</strong> 条</span>
+    </div>
+
+    <div class="mt-20">
+        <table class="table table-border table-bordered table-hover table-bg table-sort">
+            <thead>
+            <tr class="text-c">
+                <th width="25"><input  id="checkAll" type="checkbox" name="" value=""></th>
+                <th width="100">ID</th>
+                <th width="300">平台名称</th>
+                <th width="300">加入时间</th>
+                <th width="">操作</th>
+            </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<script>
+    function doAdd() {
+        var url = "/admin/platform/add";
+        if($('#addName').val() == ""){
+            layer.msg("请输入新增平台名");
+            return false;
+        }
+        var ajaxData = {
+            name:$('#addName').val(),
+        };
+        $.ajax({
+            type: "post",
+            url: url,
+            data: ajaxData,
+            dataType: "json",
+            success: function(res){
+                layer.msg(res.msg);
+                if(res.status == 1){
+                    location.replace(location.href);   //刷新
+                }
+            },
+        });
+    }
+
+    function doEdit(obj,rowid){
+        var url = "/admin/platform/edit/"+rowid;
+        layer_show("平台更改",url,800,500);  //标题，路由，宽，高
+    }
+
+
+    function doDel(obj,rowid) {
+        layer.confirm('确定删除？', {
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            var url = "/admin/platform/del/"+rowid;
+            $.ajax({
+                type: "post",
+                url: url,
+                data: {},
+                dataType: "json",
+                success: function(res){
+                    layer.msg(res.msg);
+                    if(res.status == 1){
+                        $(obj).parent().parent().remove();
+                    }
+                },
+            });
+        }, function(){
+            return ;
+        });
+    }
+
+    function getBodyHtml(obj) {
+        var res = "";
+        for(var i in obj){
+            res += "<tr class='text-c'>";
+            res += " <td><input class='checkOne' type='checkbox' value=''  name=''></td>";
+            res += "<td>"+obj[i].Id+"</td>";
+            res += "<td>"+obj[i].Name+"</td>";
+            res += "<td>"+obj[i].CreateTime+"</td>";
+            res += "<td class='td-manage'>";
+            res += "<a title='编辑'  href='javascript:;' onclick=doEdit(this,'"+obj[i].Id+"') class='ml-5'  style='text-decoration:none'>" +
+                    "<i class='Hui-iconfont'>&#xe6df;</i>" +
+                    "</a>";
+            res += "<a title='删除'  href='javascript:;'  onclick=doDel(this,'"+obj[i].Id+"') class='ml-5' style='text-decoration:none'>" +
+                    "<i class='Hui-iconfont'>&#xe6e2;</i>" +
+                    "</a>";
+            res += "</td></tr>";
+        }
+        return res;
+    }
+
+
+    $(document).ready(function () {
+        doSearch();
+    });
+
+
+    function doSearch(){
+        $.ajax({
+            type: "get",
+            url: "/admin/platform/query",
+            data: {},
+            dataType: "json",
+            success: function(res){
+                if(res.status == 1){
+                    var datas = res.datas;
+                    var totals = res.totals;
+                    $("#tbody").html(getBodyHtml(datas));
+                    $("#total_nums").text(totals);
+                }
+            },
+        });
+    }
+
+</script>
+
+
+
+{{template "admin/common/footer.html" .}}
+
+

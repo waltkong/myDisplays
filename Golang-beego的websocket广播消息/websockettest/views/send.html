@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket-发送数据客户端</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<br/>我的用户id<input id="myID" type="text" value=""/>
+<br/>我的用户名<input id="myName" type="text" value=""/>
+<br/>接收者用户id<input id="recID" type="text" placeholder="输入整数"/>
+<br/>消息标题<input id="title" type="text" value="默认消息头"/>
+<br/>消息类型<input id="mtype" type="text" value="1"/>
+<br/>1表示发起这个消息，其他表示是接着别人的消息回应的<input id="start" type="text" value="1"/>
+<br/>如果是接着别人的消息回应的，那么本身会有一个message_id<input id="msgID" type="text" value="1"/>
+<br/>
+
+<textarea rows="3" cols="20" id="content">
+默认消息内容
+</textarea>
+<button onclick="send()">发送消息</button>
+
+<hr/>
+{{/*<button onclick="closeWebSocket()">关闭WebSocket连接</button>*/}}
+<hr/>
+<div id="message">
+
+</div>
+
+</body>
+
+<script type="text/javascript">
+    var websocket = null;
+    //判断当前浏览器是否支持WebSocket
+    if ('WebSocket' in window) {
+        //alert(window.location.host);
+        websocket = new WebSocket('ws://127.0.0.1:8001/ws');
+    } else {
+        alert('当前浏览器 Not support websocket')
+    }
+
+    //发送消息
+    function send() {
+        var myID = $("#myID").val();
+        var myName = $("#myName").val();
+        var recID = $("#recID").val();
+        var title = $("#title").val();
+        var mtype = $("#mtype").val();
+        var content = $("#content").val();
+        var start = $("#start").val();
+        var msgID = $("#msgID").val();
+        //var shakehand = 0;    //表示不是握手过程
+        var msg = {myID:myID.toString(),myName:myName.toString(),recID:recID.toString(),title:title.toString(),mtype:mtype.toString(),content:content.toString(),start:start.toString(),shakehand:"0",msgID:msgID.toString()} ;
+        websocket.send(JSON.stringify(msg));
+    }
+
+    //连接发生错误的回调方法
+    websocket.onerror = function () {
+        setMessageInnerHTML("WebSocket连接发生错误");
+    };
+
+    //连接成功建立的回调方法
+    websocket.onopen = function () {
+        setMessageInnerHTML("WebSocket连接成功");
+        var myID = Math.floor(Math.random()*10+1);
+        $("#myID").val(myID);
+        $("#myName").val('赵'+myID);
+        var msg = {myID:myID.toString(),myName:myName.toString(),recID:"0",title:"0",mtype:"0",content:"0",start:"0",shakehand:"1",msgID:"0"} ;
+        websocket.send(JSON.stringify(msg));
+    };
+
+    //接收到消息的回调方法
+    websocket.onmessage = function (event) {
+        console.log(event);
+        setMessageInnerHTML("接收到服务端返回的数据为：" + event.data);
+    };
+
+    //连接关闭的回调方法
+    websocket.onclose = function () {
+        setMessageInnerHTML("WebSocket连接关闭");
+    };
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function () {
+        closeWebSocket();
+    };
+
+    //将消息显示在网页上
+    function setMessageInnerHTML(innerHTML) {
+        document.getElementById('message').innerHTML += innerHTML + '<br/>';
+    }
+
+    //关闭WebSocket连接
+    function closeWebSocket() {
+        websocket.close();
+    }
+
+
+</script>
+</html>

@@ -1,0 +1,53 @@
+{{template "admin/common/header.html" .}}
+
+<article class="page-container">
+    <form class="form form-horizontal" id="form-admin-add">
+        <input type="hidden" id="rowid" value="{{ .ThisRow.Id}}" >
+        <div class="row cl">
+            <label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>游戏名：</label>
+            <div class="formControls col-xs-8 col-sm-9">
+                <input type="text" class="input-text" value="{{ .ThisRow.Name}}" placeholder="" id="name" name="name">
+            </div>
+        </div>
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                <input class="btn btn-primary radius" type="button" id='submit' onclick=submitForm()  value="提交">
+            </div>
+        </div>
+    </form>
+</article>
+
+<script>
+    function submitForm(){
+        var rowid = $('#rowid').val();
+        var ajaxData = {
+            name:$('#name').val(),
+        };
+        if(ajaxData.name==""){
+            layer.msg("用户名不能为空");
+            return false;
+        }
+        $("#submit").val("提交中...");
+        var url = "/admin/games/edit/" + rowid;
+        $.ajax({
+            type:'post',
+            dataType:'JSON',
+            url:url,
+            data:ajaxData,
+            success:function(res){
+                console.log(res);
+                layer.msg(res.msg);
+                layer.closeAll();
+                parent.location.reload();
+            },
+            error:function (a,b,c) {
+                layer.closeAll();
+                parent.location.reload();
+            }
+        });
+    }
+
+</script>
+
+{{template "admin/common/footer.html" .}}

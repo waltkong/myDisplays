@@ -1,0 +1,71 @@
+{{template "admin/common/header.html" .}}
+
+<style type="text/css">
+    html,body{height:auto;}
+    #province select{margin-left:10px; width:100px}
+    .travel-pic{ width:1020px;}
+    .travel-pic li{display: inline;float: left;margin-right: 20px;overflow: hidden;width: 235px;}
+    .travel-pic img{border:0; width:235px; height:157px;vertical-align:top;display:block;transition: all .3s ease;-webkit-transition: all .3s ease;-moz-transition: all .3s ease;-ms-transition: all .3s ease;-o-transition: all .3s ease;}
+    .travel-pic a:hover img{transform:scale(1.04,1.04);-ms-transform:scale(1.04,1.04); -webkit-transform:scale(1.04,1.04);}
+</style>
+
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span>
+    <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" >
+        <i class="Hui-iconfont">&#xe68f;</i>
+    </a>
+</nav>
+
+<div class="page-container">
+    {{/*<p style="text-align: center">欢迎访问 广告自动化后台管理系统</p>*/}}
+    <p class="f-20 text-success" style="text-align: center"> 请选择当前您要操作的 游戏 </p>
+</div>
+
+<div style="width:1000px; margin:0 auto; overflow:hidden">
+    {{if eq .games_count 0 }}
+        <ul class="travel-pic cl">
+            <li class="justclick">没添加任何游戏</li>
+        </ul>
+    {{else}}
+        {{range $index, $elem := .games}}
+        <ul class="travel-pic cl">
+            {{ range  $index2,$elem2 :=  $elem}}
+                <li class="justclick" target="_self" id_attr="{{$elem2.Id}}"  data-title='游戏列表'  data-href="/admin/index/welcome2"><a href="javascript:;"><img src="/static/admin/games_icon/001.jpg">{{$elem2.Name}}</a></li>
+            {{end}}
+        </ul>
+        {{end}}
+    {{end}}
+
+    {{/*<ul class="travel-pic cl">*/}}
+        {{/*<li class="justclick"><a href="#"><img src="/static/admin/games_icon/001.jpg"></a></li>*/}}
+        {{/*<li class="justclick"><a href="#"><img src="/static/admin/games_icon/002.jpg"></a></li>*/}}
+        {{/*<li class="justclick"><a href="#"><img src="/static/admin/games_icon/003.jpg"></a></li>*/}}
+        {{/*<li class="justclick"><a href="#"><img src="/static/admin/games_icon/004.jpg"></a></li>*/}}
+    {{/*</ul>*/}}
+
+    {{/*<br><br>*/}}
+
+</div>
+
+
+<script type="text/javascript">
+    //		    <a style="float:left;width:200px;height:186px;margin-bottom:14px;" class="justclick" _href="{:U($vo['set_url'])}" target="_self" data-title="{$vo.title}"  href="javascript:void(0)"><img src="{$vo.set_img}" border="0" title="{$vo.title}" width="135px"></a>
+
+    $(document).on("click",".justclick",function(){
+        //发送当前操作的游戏
+        var id= $(this).attr("id_attr");
+        $.ajax({
+            type: "post",
+            url: "/admin/stateapi/gamechange/"+id,
+            data: {},
+            dataType: "json",
+            success: function(res){
+                window.location.href = "/admin/index/welcome2";
+            },
+        });
+        //Hui_admin_tab(this);
+    });
+</script>
+
+{{template "admin/common/footer.html" .}}
+
+

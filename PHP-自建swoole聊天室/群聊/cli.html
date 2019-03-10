@@ -1,0 +1,67 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>聊天室-群聊</title>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+</head>
+<style>
+    ul,li{list-style: none;padding: 0;margin: 0;}
+    body{width: 50%;float: left;margin: 5px 25%;}
+    .msg_box{width: 100%;border:1px solid #ddd;height: 500px; float: left;overflow: scroll;}
+    .msg_box li{padding: 10px;border-bottom:1px solid #ddd;}
+    .op_box{width: 100%;float: left;}
+    .op_box textarea{width: 96%;float: left;padding: 2%;border:1px solid #ddd;height: 50px;resize: none;}
+    .op_box a{width: 200px;display: block;float: right;height: 30px;line-height: 30px;background: #ddd;color: black;text-align: center;text-underline-style: none;margin-top: 5px;}
+</style>
+<body>
+<ul class="msg_box"></ul>
+<div class="op_box">
+    <textarea name="msg" placeholder="请输入消息"></textarea>
+    <a href="javascript:;" class="send_btn">发送</a>
+</div>
+</body>
+<script>
+    var data='';
+    var name = window.prompt('请输入昵称', 'mayun');
+    var group_id=window.prompt('请输入群id', '1');
+    $('title').html('您是：'+name+'，处于群【'+group_id+'】'+$('title').html());
+    if(name){
+        var ws = new WebSocket("ws://47.106.95.82:9502");
+        ws.onopen = function(evt) {
+            console.log("Connection open ...");
+            //ws.send("Hello WebSockets!");
+            data={'name':name,'type':'bind','group_id':group_id}
+            ws.send(JSON.stringify( data ));
+        };
+        ws.onmessage = function(evt) {
+            console.log( "Received Message: " + evt.data);
+            dataObj=eval('('+evt.data+')');
+            $('.msg_box').append('<li>'+dataObj.name+':'+dataObj.data+'</li>')
+            //ws.close();
+        };
+        ws.onclose = function(evt) {
+            console.log("Connection closed.");
+        };
+        ws.onerror = function(evt) {
+            console.log('error');
+        };
+    }
+    $('.send_btn').click(function(){
+        var msg=$('textarea').val();
+        if(msg){
+            data={'name':name,'msg':msg,'type':'msg','group_id':group_id}
+            ws.send(JSON.stringify( data ));
+            $('textarea').val('');
+        }
+    });
+    document.onkeydown=function(event){
+        if(event.keyCode==13)
+        {
+            $('.send_btn').click();
+            return false;
+        }
+    }
+</script>
+</html>

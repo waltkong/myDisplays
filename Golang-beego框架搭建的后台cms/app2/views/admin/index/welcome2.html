@@ -1,0 +1,61 @@
+{{template "admin/common/header.html" .}}
+
+<style type="text/css">
+    html,body{height:auto;}
+    #province select{margin-left:10px; width:100px}
+    .travel-pic{ width:1020px;}
+    .travel-pic li{display: inline;float: left;margin-right: 20px;overflow: hidden;width: 235px;}
+    .travel-pic img{border:0; width:235px; height:157px;vertical-align:top;display:block;transition: all .3s ease;-webkit-transition: all .3s ease;-moz-transition: all .3s ease;-ms-transition: all .3s ease;-o-transition: all .3s ease;}
+    .travel-pic a:hover img{transform:scale(1.04,1.04);-ms-transform:scale(1.04,1.04); -webkit-transform:scale(1.04,1.04);}
+</style>
+
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span>
+    <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" >
+        <i class="Hui-iconfont">&#xe68f;</i>
+    </a>
+</nav>
+
+<div class="page-container">
+    <p class="f-20 text-success" style="text-align: center">请选择当前您要操作的 投放平台 </p>
+</div>
+
+<div style="width:1000px; margin:0 auto; overflow:hidden">
+{{if eq .platforms_count 0 }}
+    <ul class="travel-pic cl">
+        <li class="justclick">没添加任何平台</li>
+    </ul>
+{{else}}
+{{range $index, $elem := .platforms}}
+    <ul class="travel-pic cl">
+    {{ range  $index2,$elem2 :=  $elem}}
+        <li class="justclick" target="_self" data-title='广告账号'  id_attr="{{$elem2.Id}}"  data-href="/admin/adsaccount/index"><a href="#"><img src="/static/admin/games_icon/002.jpg">{{$elem2.Name}}</a></li>
+    {{end}}
+    </ul>
+{{end}}
+{{end}}
+
+</div>
+
+
+<script type="text/javascript">
+    //		    <a style="float:left;width:200px;height:186px;margin-bottom:14px;" class="justclick" _href="{:U($vo['set_url'])}" target="_self" data-title="{$vo.title}"  href="javascript:void(0)"><img src="{$vo.set_img}" border="0" title="{$vo.title}" width="135px"></a>
+
+    $(document).on("click",".justclick",function(){
+        //发送当前操作的投放平台
+        var that = this;
+        var id= $(this).attr("id_attr");
+        $.ajax({
+            type: "post",
+            url: "/admin/stateapi/platformchange/"+id,
+            data: {},
+            dataType: "json",
+            success: function(res){
+                Hui_admin_tab(that);
+            },
+        });
+    });
+</script>
+
+{{template "admin/common/footer.html" .}}
+
+

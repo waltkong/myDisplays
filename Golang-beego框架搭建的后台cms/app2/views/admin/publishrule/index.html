@@ -1,0 +1,185 @@
+{{template "admin/common/header.html" .}}
+
+<style>
+    .value{
+        border: none;
+        border-bottom: 1px solid #999;
+        text-align: center;
+        padding: 6px;
+    }
+</style>
+<nav class="breadcrumb"><i class="Hui-iconfont">&#xe67f;</i> 首页 <span class="c-gray en">&gt;</span> 投放规则 <span class="c-gray en">&gt;</span> 规则列表 <a class="btn btn-success radius r" style="line-height:1.6em;margin-top:3px" href="javascript:location.replace(location.href);" title="刷新" ><i class="Hui-iconfont">&#xe68f;</i></a></nav>
+<div class="page-container">
+    <div class="cl pd-5 bg-1 bk-gray">
+        <span class="l">
+             所属游戏：
+            <select name="games" id="games" class="select" onchange="doOnChange()">
+                <option value="1">game1</option>
+                 <option value="2">game2</option>
+                 <option value="3">game3</option>
+                 <option value="4">game4</option>
+            </select>
+
+        </span>
+    </div>
+    <form action="" method="post">
+    <table class="table table-border table-bordered table-hover table-bg">
+        <thead>
+        <tr>
+            <th scope="col" colspan="5">投放规则管理</th>
+        </tr>
+        <tr class="text-c">
+            <th width="25"><input type="checkbox" id='checkall' value="" name=""></th>
+            <th width="200">项目</th>
+            <th >规则</th>
+            <th width="300">通知频率</th>
+            <th width="300">解决方案</th>
+        </tr>
+        </thead>
+        <tbody id="tbody">
+
+        </tbody>
+    </table>
+        <a class="btn btn-primary radius" href="javascript:;" onclick="doPostForm()">
+            更新数据
+        </a>
+    </form>
+</div>
+
+<script>
+    function getBodyHtml(){
+        var res = "";
+        res += "  <tr class='text-c'>" +
+                "<td><input type='checkbox' class='checkOne' value='' name=''></td>" +
+                "<td>预算</td>" +
+                "<td>当消耗高于当前预算<input class=\"value\" value='"+dataObj.consume_max+"' width='200' id='consume_max' name='consume_max'>的时候发出通知</td>" +
+                "<td>每分钟发送一次</td>" +
+                "<td>根据数据决定是否调高预算</td>" +
+                "</tr>";
+        res += "<tr class='text-c'>" +
+                "<td><input type='checkbox'  class='checkOne' value=''  name='checkbox'></td>" +
+                "<td>转化成本</td>" +
+                "<td>当转化成本高于<input  class=\"value\" value='"+dataObj.convert_cost_max+"' width='200' id='convert_cost_max' name='convert_cost_max'>且转化数大于<input class=\"value\" value='"+dataObj.convert_num_max+"' width='200' id='convert_num_max' name='convert_num_max'>的时候发出通知</td>" +
+                "<td>每5分钟发送一次</td>" +
+                "<td>根据数据决定是否卡预算或停计划</td>" +
+                "</tr>";
+        res +=  "<tr class='text-c'>\n" +
+                "<td><input type='checkbox' class='checkOne' value='' name=''></td>" +
+                "<td>账户剩余金额</td>" +
+                "<td>当账户小于<input  class=\"value\" value='"+dataObj.remain_money_min+"' width='200' id='remain_money_min' name='remain_money_min'>的时候发出通知</td>" +
+                "<td>少于一万发送一次，小于5000时，每分钟发送一次</td>" +
+                "<td>根据数据决定是否充值</td>\n" +
+                "</tr>";
+        res += " <tr class='text-c'>" +
+                "<td><input type='checkbox' class='checkOne' value='' name=''></td>" +
+                "<td>首日LTV</td>" +
+                "<td>当LTV小于<input  class=\"value\" value='"+dataObj.ltv_num_min+"' width='200' id='ltv_num_min' name='ltv_num_min'>且转化数大于<input class=\"value\" value='"+dataObj.ltv_convert_num_max+"' width='200' id='ltv_convert_num_max' name='ltv_convert_num_max'>的时候发出通知</td>" +
+                "<td>每分钟发送一次</td>" +
+                "<td>根据数据决定是否调高预算</td>" +
+                "/tr>";
+        return res;
+    }
+
+
+    var dataObj = new Object({
+        consume_max:'',
+        convert_cost_max:'',
+        convert_num_max:'',
+        remain_money_min:'',
+        ltv_num_min:'',
+        ltv_convert_num_max:'',
+    });
+
+    function  clearObj(){
+        dataObj.consume_max = "";
+        dataObj.convert_cost_max = "";
+        dataObj.convert_num_max = "";
+        dataObj.remain_money_min = "";
+        dataObj.ltv_num_min = "";
+        dataObj.ltv_convert_num_max = "";
+    }
+
+    $(document).ready(function () {
+        doOnChange();
+    });
+
+    function doPostForm(){
+        var gameID = $("#games").find("option:selected").val();
+        var consume_max = $("#consume_max").val();
+        var convert_cost_max =  $("#convert_cost_max").val();
+        var convert_num_max =  $("#convert_num_max").val();
+        var remain_money_min =  $("#remain_money_min").val();
+        var ltv_num_min =  $("#ltv_num_min").val();
+        var ltv_convert_num_max =  $("#ltv_convert_num_max").val();
+        var ajaxData = {
+            gameID:gameID,
+            consume_max:consume_max,
+            convert_cost_max:convert_cost_max,
+            convert_num_max:convert_num_max,
+            remain_money_min:remain_money_min,
+            ltv_num_min:ltv_num_min,
+            ltv_convert_num_max:ltv_convert_num_max,
+        };
+        $.ajax({  //jump_url
+            type:'post',
+            dataType:'JSON',
+            url:"/admin/publishrule/edit",
+            data:ajaxData,
+            success:function(res){
+                layer.msg(res.msg);
+                console.log(res);
+            },
+        });
+
+    }
+
+
+    function doOnChange(){
+        var gameID = $("#games").find("option:selected").val();
+        var ajaxData = {
+            gameID:gameID,
+        };
+        $.ajax({  //jump_url
+            type:'post',
+            dataType:'JSON',
+            url:"/admin/publishrule/index",
+            data:ajaxData,
+            success:function(res){
+                if (res.status == 1){
+                    var d = res.msg;
+                    if (d == null){
+                        clearObj();
+                    }else{
+                        for(var i in d){
+                            if(d[i].FieldKey == "consume_max"){
+                                dataObj.consume_max = d[i].FieldValue;
+                            }
+                            if(d[i].FieldKey == "convert_cost_max"){
+                                dataObj.convert_cost_max = d[i].FieldValue;
+                            }
+                            if(d[i].FieldKey == "convert_num_max"){
+                                dataObj.convert_num_max = d[i].FieldValue;
+                            }
+                            if(d[i].FieldKey == "remain_money_min"){
+                                dataObj.remain_money_min = d[i].FieldValue;
+                            }
+                            if(d[i].FieldKey == "ltv_num_min"){
+                                dataObj.ltv_num_min = d[i].FieldValue;
+                            }
+                            if(d[i].FieldKey == "ltv_convert_num_max"){
+                                dataObj.ltv_convert_num_max = d[i].FieldValue;
+                            }
+                        }
+                    }
+                    $('#tbody').html(getBodyHtml())
+                }
+            },
+        });
+    }
+
+</script>
+
+
+{{template "admin/common/footer.html" .}}
+
+
