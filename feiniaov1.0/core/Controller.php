@@ -12,7 +12,30 @@
 class Controller
 {
 
-    public function __construct (){}
+    public function __construct ()
+    {
+        $this->beforeMiddleware();
+        $this->_init();
+    }
 
+    public function beforeMiddleware()
+    {
+
+    }
+
+    protected function _init()
+    {
+
+    }
+
+    public function __destruct()
+    {
+       $this->afterMiddleware();
+    }
+
+    public function afterMiddleware()
+    {
+
+    }
 
 }

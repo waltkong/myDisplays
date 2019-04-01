@@ -24,9 +24,22 @@ class IndexController extends BaseController
     public function index(){
         $a = 1;
         $b=2;
-        $code = app('code')->getCode();
+
+        app('middleware')->register(self::class,'after');
+
+
+
 
         return app('response')->view('welcome');
+    }
+
+
+    public function after(){
+        echo 'haha';
+    }
+
+    public function mid(){
+        echo 'mid';
     }
 
     public function test(){
@@ -44,6 +57,8 @@ class IndexController extends BaseController
         $check = app('form')->checkEmail('aa');
         $jwt = app('jwt')->issue(['aa'=>1]);
         $res = app('log')->info('aa');
+
+        $code = app('code')->getCode();
 
     }
 
