@@ -21,6 +21,7 @@ class ExceptMiddleware implements IMiddleware
     public function handle($request){
         return function () use($request){
             $request->b = 2;
+            echo 'end here'; die;
             $a =  'ccc';
             $b =  'dd';
         };
