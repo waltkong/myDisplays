@@ -15,7 +15,7 @@ class RedisAdapterCache implements ICache
     private $redis;
     private $redis_prefix = '';
 
-    public function __construct ($groupPath,$fileName)
+    public function __construct ($prefix)
     {
         $redis_config = app('config')->get('redis_config');
         $redis_option = [
@@ -25,38 +25,38 @@ class RedisAdapterCache implements ICache
         ];
         $this->redis = new RedisCluster();
         $this->redis->connect(array('host'=>$redis_option['REDIS_HOST'],'port'=>$redis_option['REDIS_PORT']));
-        $this->redis_prefix = $groupPath.'_'.$fileName.'_';
+        $this->redis_prefix = 'redis_'.$prefix;
     }
 
     public function get($key,$default=''){
         $cacheKey =  $this->redis_prefix.$key;
         $value = $this->redis->get($cacheKey);
-        return $value==false?['status'=>-1,'msg'=>'获取缓存失败','data'=>$default]:['status'=>1,'msg'=>'成功','data'=>$value];
+        return $value;
     }
 
     public function pull($key,$default=''){
         $getRes = $this->get($key,$default);
-        if($getRes['status'] == 1){
+        if($getRes){
             $this->delete($key);
         }
         return $getRes;
     }
 
-    public function set($key,$value,$time=0){
+    public function set($key,$value,$time=0){   //0代表永久
         $cacheKey =  $this->redis_prefix.$key;
         $this->redis->set($cacheKey,$value,$time);
-        return ['status'=>1,'msg'=>'成功',];
+        return true;
     }
 
     public function delete($key){
         $cacheKey =  $this->redis_prefix.$key;
         $intNum = $this->redis->remove($cacheKey);
-        return $intNum?['status'=>1,'msg'=>'成功',]:['status'=>-1,'msg'=>'失败',];
+        return $intNum;
     }
 
     public function truncate(){
         $this->redis->clear();
-        return ['status'=>1,'msg'=>'成功',];
+        return true;
     }
 
 }

@@ -80,9 +80,9 @@ class Feiniao
         $chain = $middlewareCoreObj->send($dealController);
         $chain = $chain->through($through);
         $chain->then(function ($object){
-            $a = 11111;
-                //do something ..
-            });
+            $object->after_middleware = true ;
+            //do something ..
+        });
     }
 
     private function handleController($controller,$moduleName,$controllerName,$action,$queryString){

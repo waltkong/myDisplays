@@ -8,3 +8,5 @@
 
 $debug_config = true;
 
+$api_frequency_config = 60;   //接口频率60次/min
+

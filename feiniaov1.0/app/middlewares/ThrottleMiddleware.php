@@ -20,20 +20,14 @@ class ThrottleMiddleware implements IMiddleware
      */
     public function handle($request){
         return function () use($request){
-            $frequency = 2;   // 频率限定 2次/min
-
+            $frequency = app('config')->get('api_frequency_config',60);   // 频率限定 多少次/min
             $clientIp = app('request')->clientIp();
-            $minTime = date('YmdHi');
-            $cache = app('cache')->get("clientIp_frequency_".$clientIp,'');
-            $cache = empty($cache)?[]:json_decode($cache,true);
-            if(isset($cache['count']) && $cache['count'] > $frequency){
-                echo "频率太快";die;
+            $cache = app('cache')->prefix('clientIp_frequency')->get($clientIp,1);
+            if(!empty($cache) && $cache > $frequency ){
+                return app('response')->json('频率太快');
             }else{
-                $cacheData = [
-                    'time' => $minTime,
-                    'count' =>  empty($cache) ? 1: $cache['count']++,
-                ];
-                app('cache')->set("clientIp_frequency_".$clientIp,json_encode($cacheData),120);
+                $data = empty($cache) ? 1: $cache+1 ;
+                app('cache')->prefix('clientIp_frequency')->set($clientIp,$data,60);
             }
         };
     }

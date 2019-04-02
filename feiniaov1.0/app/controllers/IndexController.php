@@ -8,6 +8,7 @@
 
 namespace app\controllers;
 
+
 use app\models\GoodsModel;
 
 class IndexController extends BaseController
@@ -25,7 +26,7 @@ class IndexController extends BaseController
         $a = 1;
         $b=2;
 
-        app('middleware')->register(self::class,'after');
+
 
 
 

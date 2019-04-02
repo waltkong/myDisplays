@@ -12,48 +12,52 @@ use app\library\frame\CacheCore\RedisAdapterCache;
 
 class CacheLibrary{
 
-    public static $instance;
+
+    public $prefix = 'default';
+
+    public static $instances = [];
 
     public function __construct (){}
 
-    public function get($key){
-        return self::getInstance()->get($key);
+    public function get($key,$default=''){
+        return $this->getCacheAdapter()->get($key,$default);
     }
 
-    public function pull($key){
-        return self::getInstance()->pull($key);
+    public function pull($key,$default=''){
+        return $this->getCacheAdapter()->pull($key,$default);
     }
 
     public function set($key,$value,$time=3600*24){
-        return self::getInstance()->set($key,$value,$time);
+        return $this->getCacheAdapter()->set($key,$value,$time);
     }
 
     public function delete($key){
-        return self::getInstance()->delete($key);
+        return $this->getCacheAdapter()->delete($key);
     }
 
     public function truncate(){
-        return self::getInstance()->truncate();
+        return $this->getCacheAdapter()->truncate();
     }
 
-    public static function getInstance($groupPath='',$fileName=''){
-        if(!self::$instance){
-            self::$instance = self::getCacheAdapter($groupPath,$fileName);
-        }
-        return self::$instance;
+    public function prefix($prefix){
+        $this->prefix = $prefix ;
+        return $this;
     }
 
-    private static function getCacheAdapter($groupPath='',$fileName=''){
-        $cacheDriver = app('config')->get('driver_config')['CACHE_DRIVER'];
-        switch (strtolower($cacheDriver)){
-            case 'redis':
-                $cacheObj = new RedisAdapterCache($groupPath,$fileName);
-                break;
-            default:   // 'file'
-                $cacheObj = new FileAdapterCache($groupPath,$fileName);
-                break;
+    private function getCacheAdapter(){
+        if(!isset(self::$instances[$this->prefix])){
+            $cacheDriver = app('config')->get('driver_config')['CACHE_DRIVER'];
+            switch (strtolower($cacheDriver)){
+                case 'redis':
+                    $cacheObj = new RedisAdapterCache($this->prefix);
+                    break;
+                default:   // 'file'
+                    $cacheObj = new FileAdapterCache($this->prefix);
+                    break;
+            }
+            self::$instances[$this->prefix] = $cacheObj;
         }
-        return $cacheObj;
+        return self::$instances[$this->prefix];
     }
 
 }

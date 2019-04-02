@@ -68,9 +68,6 @@ class AppFactoryLibrary{
                 case 'code':
                     $obj =  new CodeLibrary();
                     break;
-                case 'middleware':
-                    $obj =  new MiddlewareLibrary();
-                    break;
             }
             if(!is_null($obj)){
                 self::$instances[$key] = $obj;
